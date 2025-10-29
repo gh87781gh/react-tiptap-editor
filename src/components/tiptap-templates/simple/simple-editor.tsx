@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import React, { useEffect } from 'react'
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react'
 
 // --- Tiptap Core Extensions ---
@@ -73,8 +73,6 @@ import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils'
 
 // --- Styles ---
 import '@/components/tiptap-templates/simple/simple-editor.scss'
-
-import content from '@/components/tiptap-templates/simple/data/content.json'
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -185,6 +183,8 @@ const MobileToolbarContent = ({
 
 export type TiptapEditorProps = {
   id: string
+  value: string
+  onChange: (value: string) => void
 }
 
 export function TiptapEditor(props: TiptapEditorProps) {
@@ -196,8 +196,14 @@ export function TiptapEditor(props: TiptapEditorProps) {
   const toolbarRef = React.useRef<HTMLDivElement>(null)
 
   const editor = useEditor({
+    content: props.value,
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
+    onUpdate: ({ editor }) => {
+      if (editor) {
+        props.onChange(editor.getHTML())
+      }
+    },
     editorProps: {
       attributes: {
         autocomplete: 'off',
@@ -236,8 +242,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
         attributeName: 'id',
         generateID: () => `tiptap-editor-${props.id}`
       })
-    ],
-    content
+    ]
   })
 
   const rect = useCursorVisibility({
@@ -245,11 +250,19 @@ export function TiptapEditor(props: TiptapEditorProps) {
     overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isMobile && mobileView !== 'main') {
       setMobileView('main')
     }
   }, [isMobile, mobileView])
+
+  useEffect(() => {
+    return () => {
+      if (editor) {
+        editor.commands.clearContent()
+      }
+    }
+  }, [editor])
 
   return (
     <div className='simple-editor-wrapper'>
