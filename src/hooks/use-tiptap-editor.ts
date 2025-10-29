@@ -1,6 +1,12 @@
 import * as React from "react"
-import type { Editor } from "@tiptap/react"
 import { useCurrentEditor, useEditorState } from "@tiptap/react"
+
+// 內部型別定義，避免暴露外部依賴
+export interface TiptapEditorInstance {
+  editor: any | null
+  editorState?: any
+  canCommand?: any
+}
 
 /**
  * Hook that provides access to a Tiptap editor instance.
@@ -13,11 +19,7 @@ import { useCurrentEditor, useEditorState } from "@tiptap/react"
  * @param providedEditor - Optional editor instance to use instead of the context editor
  * @returns The provided editor or the editor from context, whichever is available
  */
-export function useTiptapEditor(providedEditor?: Editor | null): {
-  editor: Editor | null
-  editorState?: Editor["state"]
-  canCommand?: Editor["can"]
-} {
+export function useTiptapEditor(providedEditor?: any | null): TiptapEditorInstance {
   const { editor: coreEditor } = useCurrentEditor()
   const mainEditor = React.useMemo(
     () => providedEditor || coreEditor,

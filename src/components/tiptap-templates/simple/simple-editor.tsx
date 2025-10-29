@@ -13,6 +13,7 @@ import { Highlight } from '@tiptap/extension-highlight'
 import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 import { Selection } from '@tiptap/extensions'
+import UniqueID from '@tiptap/extension-unique-id'
 
 // --- UI Primitives ---
 import { Button } from '@/components/tiptap-ui-primitive/button'
@@ -153,7 +154,6 @@ const MainToolbarContent = ({
     </>
   )
 }
-
 const MobileToolbarContent = ({
   type,
   onBack
@@ -183,7 +183,11 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function TiptapEditor() {
+export type TiptapEditorProps = {
+  id: string
+}
+
+export function TiptapEditor(props: TiptapEditorProps) {
   const isMobile = useIsMobile()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = React.useState<
@@ -227,6 +231,10 @@ export function TiptapEditor() {
         limit: 3,
         upload: handleImageUpload,
         onError: (error) => console.error('Upload failed:', error)
+      }),
+      UniqueID.configure({
+        attributeName: 'id',
+        generateID: () => `tiptap-editor-${props.id}`
       })
     ],
     content

@@ -2,7 +2,7 @@
 import './index.css'
 
 // 主要元件匯出
-export { TiptapEditor } from './components/tiptap-templates/simple/simple-editor'
+export { TiptapEditor, type TiptapEditorProps } from './components/tiptap-templates/simple/simple-editor'
 
 // 常用子元件匯出（供進階使用）
 export { BlockquoteButton } from './components/tiptap-ui/blockquote-button'

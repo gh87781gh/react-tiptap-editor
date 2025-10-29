@@ -23,28 +23,11 @@ export default defineConfig(({ mode }) => {
           fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`
         },
         rollupOptions: {
-          // 確保將 peer dependencies 排除在 bundle 之外
+          // 只排除 React 相關依賴，其他依賴都打包進 bundle
           external: [
             'react',
             'react-dom',
-            'react/jsx-runtime',
-            '@tiptap/react',
-            '@tiptap/starter-kit',
-            '@tiptap/extension-image',
-            '@tiptap/extension-list',
-            '@tiptap/extension-text-align',
-            '@tiptap/extension-typography',
-            '@tiptap/extension-highlight',
-            '@tiptap/extension-subscript',
-            '@tiptap/extension-superscript',
-            '@tiptap/extension-horizontal-rule',
-            '@tiptap/extensions',
-            '@tiptap/pm',
-            '@floating-ui/react',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-popover',
-            'lodash.throttle',
-            'react-hotkeys-hook'
+            'react/jsx-runtime'
           ],
           output: {
             exports: 'named',
