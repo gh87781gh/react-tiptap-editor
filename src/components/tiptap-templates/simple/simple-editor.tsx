@@ -5,7 +5,6 @@ import { EditorContent, EditorContext, useEditor } from '@tiptap/react'
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from '@tiptap/starter-kit'
-import { Image } from '@tiptap/extension-image'
 import { TaskItem, TaskList } from '@tiptap/extension-list'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Typography } from '@tiptap/extension-typography'
@@ -27,11 +26,13 @@ import {
 // --- Tiptap Node ---
 import { ImageUploadNode } from '@/components/tiptap-node/image-upload-node/image-upload-node-extension'
 import { HorizontalRule } from '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension'
+import { ResizableImage } from '@/components/tiptap-node/resizable-image-node'
 import '@/components/tiptap-node/blockquote-node/blockquote-node.scss'
 import '@/components/tiptap-node/code-block-node/code-block-node.scss'
 import '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss'
 import '@/components/tiptap-node/list-node/list-node.scss'
 import '@/components/tiptap-node/image-node/image-node.scss'
+import '@/components/tiptap-node/resizable-image-node/resizable-image-node.scss'
 import '@/components/tiptap-node/heading-node/heading-node.scss'
 import '@/components/tiptap-node/paragraph-node/paragraph-node.scss'
 
@@ -67,9 +68,6 @@ import { useCursorVisibility } from '@/hooks/use-cursor-visibility'
 
 // --- Components ---
 // import { ThemeToggle } from '@/components/tiptap-templates/simple/theme-toggle'
-
-// --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils'
 
 // --- Styles ---
 import '@/components/tiptap-templates/simple/simple-editor.scss'
@@ -185,6 +183,11 @@ export type TiptapEditorProps = {
   id: string
   value: string
   onChange: (value: string) => void
+  onUploadImage?: (
+    file: File,
+    onProgress?: (event: { progress: number }) => void,
+    abortSignal?: AbortSignal
+  ) => Promise<string>
 }
 
 export function TiptapEditor(props: TiptapEditorProps) {
@@ -214,6 +217,24 @@ export function TiptapEditor(props: TiptapEditorProps) {
       }
     },
     extensions: [
+      ResizableImage,
+      ImageUploadNode.configure({
+        type: 'resizableImage', // 使用 ResizableImage 節點類型
+        accept: 'image/*',
+        maxSize: 1 * 1024 * 1024 * 1024,
+        // limit: props.maxImageCount || 3,
+        upload: (file, onProgress, abortSignal) =>
+          Promise.resolve(
+            props.onUploadImage?.(file, onProgress, abortSignal) || ''
+          )
+        // upload: (file) => props.onUploadImage(file)
+        // // onError:
+        // //   props.onImageUploadError ||
+        // //   ((error) => console.error('Upload failed:', error)),
+        // onSuccess: (url) => {
+        //   console.log('Upload success:', url)
+        // }
+      }),
       StarterKit.configure({
         horizontalRule: false,
         link: {
@@ -226,18 +247,10 @@ export function TiptapEditor(props: TiptapEditorProps) {
       TaskList,
       TaskItem.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
-      Image,
       Typography,
       Superscript,
       Subscript,
       Selection,
-      ImageUploadNode.configure({
-        accept: 'image/*',
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-        onError: (error) => console.error('Upload failed:', error)
-      }),
       UniqueID.configure({
         attributeName: 'id',
         generateID: () => `tiptap-editor-${props.id}`

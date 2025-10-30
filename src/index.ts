@@ -25,7 +25,7 @@ export { useWindowSize } from './hooks/use-window-size'
 export { useTiptapEditor } from './hooks/use-tiptap-editor'
 
 // 工具函數
-export { handleImageUpload, MAX_FILE_SIZE } from './lib/tiptap-utils'
+export { onUploadImage, MAX_FILE_SIZE } from './lib/tiptap-utils'
 
 // 預設匯出主要元件（移除以避免混合匯出警告）
 // export { TiptapEditor as default } from './components/tiptap-templates/simple/simple-editor'

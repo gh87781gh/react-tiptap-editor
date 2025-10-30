@@ -8,7 +8,7 @@
     "emitDeclarationOnly": true,
     "outDir": "./dist",
     "moduleResolution": "node",
-    "allowImportingTsExtensions": false,
+    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": false,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true

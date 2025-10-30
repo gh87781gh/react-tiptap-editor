@@ -249,12 +249,12 @@ function SizeAwareComponent() {
 
 ## 🛠 工具函數
 
-### `handleImageUpload`
+### `onUploadImage`
 
 圖片上傳處理函數。
 
 ```tsx
-import { handleImageUpload, MAX_FILE_SIZE } from 'react-tiptap-base-editor'
+import { onUploadImage, MAX_FILE_SIZE } from 'react-tiptap-base-editor'
 
 // 自定義上傳邏輯
 const customUpload = async (file: File) => {

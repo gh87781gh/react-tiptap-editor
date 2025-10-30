@@ -1,7 +1,7 @@
 {
   "name": "react-tiptap-base-editor",
   "private": false,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -27,7 +27,7 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@tiptap/extension-highlight": "^3.4.5",
     "@tiptap/extension-horizontal-rule": "^3.4.5",
-    "@tiptap/extension-image": "^3.4.5",
+    "@tiptap/extension-image": "^3.9.1",
     "@tiptap/extension-list": "^3.4.5",
     "@tiptap/extension-subscript": "^3.4.5",
     "@tiptap/extension-superscript": "^3.4.5",

@@ -1,0 +1,166 @@
+// 可調整大小的圖片節點樣式
+.tiptap.ProseMirror {
+  .resizable-image-wrapper {
+    // 確保包裝器不會影響佈局
+    display: contents;
+
+    // 使用 ID 選擇器來確保樣式只影響特定圖片
+    [id^='resizable-image-'] {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+
+      // 防止在調整大小時選取文字
+      &.resizing {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+      }
+
+      // 圖片樣式
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        border-radius: var(--tt-radius-xs, 0.25rem);
+        transition: outline 0.2s ease;
+
+        // 防止拖拽
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
+        user-drag: none;
+      }
+
+      // 調整手柄樣式
+      .resize-handle {
+        position: absolute;
+        bottom: -5px;
+        right: -5px;
+        width: 12px;
+        height: 12px;
+        background: var(--tt-brand-color-500, #007bff);
+        border: 2px solid white;
+        border-radius: 50%;
+        cursor: nw-resize;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+        // 增加點擊區域
+        &::before {
+          content: '';
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          right: -5px;
+          bottom: -5px;
+        }
+
+        &:hover {
+          background: var(--tt-brand-color-600, #0056b3);
+          transform: scale(1.1);
+        }
+      }
+
+      // 當圖片被選中或懸停時顯示手柄
+      &:hover .resize-handle,
+      &.selected .resize-handle {
+        opacity: 1;
+      }
+
+      // 尺寸顯示標籤
+      .size-label {
+        position: absolute;
+        top: -25px;
+        left: 0;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 11;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+      }
+
+      &:hover .size-label,
+      &.selected .size-label,
+      &.resizing .size-label {
+        opacity: 1;
+      }
+    }
+  }
+
+  // 選中狀態的圖片外框
+  .ProseMirror-selectednode {
+    [id^='resizable-image-'] {
+      outline: 2px solid var(--tt-brand-color-500, #007bff);
+      outline-offset: 2px;
+      border-radius: var(--tt-radius-xs, 0.25rem);
+
+      .resize-handle {
+        opacity: 1;
+      }
+    }
+  }
+
+  // 暗色主題支援
+  .dark & {
+    [id^='resizable-image-'] {
+      .resize-handle {
+        background: var(--tt-brand-color-400, #4dabf7);
+        border-color: var(--tt-gray-dark-100, #1a1a1a);
+
+        &:hover {
+          background: var(--tt-brand-color-300, #74c0fc);
+        }
+      }
+
+      .size-label {
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--tt-gray-dark-900, #1a1a1a);
+      }
+    }
+
+    .ProseMirror-selectednode {
+      [id^='resizable-image-'] {
+        outline-color: var(--tt-brand-color-400, #4dabf7);
+      }
+    }
+  }
+}
+
+// 響應式設計
+@media (max-width: 768px) {
+  .tiptap.ProseMirror {
+    [id^='resizable-image-'] {
+      .resize-handle {
+        width: 16px;
+        height: 16px;
+        bottom: -8px;
+        right: -8px;
+      }
+
+      .size-label {
+        font-size: 14px;
+        padding: 4px 8px;
+      }
+    }
+  }
+}
+
+// 防止在調整大小時出現文字選取
+.resizing {
+  * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }
+}
