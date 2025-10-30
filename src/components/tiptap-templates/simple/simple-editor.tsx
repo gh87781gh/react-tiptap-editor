@@ -13,6 +13,8 @@ import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 import { Selection } from '@tiptap/extensions'
 import UniqueID from '@tiptap/extension-unique-id'
+import { Color } from '@tiptap/extension-color'
+import { TextStyle } from '@tiptap/extension-text-style'
 
 // --- UI Primitives ---
 import { Button } from '@/components/tiptap-ui-primitive/button'
@@ -235,6 +237,8 @@ export function TiptapEditor(props: TiptapEditorProps) {
         //   console.log('Upload success:', url)
         // }
       }),
+      Color,
+      TextStyle,
       StarterKit.configure({
         horizontalRule: false,
         link: {
