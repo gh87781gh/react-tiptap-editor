@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react'
+import { v4 as uuid } from 'uuid'
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from '@tiptap/starter-kit'
@@ -182,7 +183,7 @@ const MobileToolbarContent = ({
 )
 
 export type TiptapEditorProps = {
-  id: string
+  id: string | null
   value: string
   onChange: (value: string) => void
   onUploadImage?: (
@@ -257,7 +258,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
       Selection,
       UniqueID.configure({
         attributeName: 'id',
-        generateID: () => `tiptap-editor-${props.id}`
+        generateID: () => `tiptap-editor-${props.id || uuid()}` // 如果沒有傳入的 id，則生成一個唯一的 id
       })
     ]
   })
