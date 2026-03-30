@@ -13,6 +13,7 @@ export { ListDropdownMenu } from './components/tiptap-ui/list-dropdown-menu'
 export { MarkButton } from './components/tiptap-ui/mark-button'
 export { TextAlignButton } from './components/tiptap-ui/text-align-button'
 export { UndoRedoButton } from './components/tiptap-ui/undo-redo-button'
+export { VideoEmbedButton } from './components/tiptap-ui/video-embed-button'
 
 // UI 基礎元件
 export { Button } from './components/tiptap-ui-primitive/button'
@@ -26,6 +27,9 @@ export { useTiptapEditor } from './hooks/use-tiptap-editor'
 
 // 工具函數
 export { onUploadImage, MAX_FILE_SIZE } from './lib/tiptap-utils'
+
+/** 編輯器根節點 className，樣式與 CSS 變數皆綁在此選擇器下 */
+export { RTBE_ROOT_CLASS } from './lib/rtbe-scope'
 
 // 預設匯出主要元件（移除以避免混合匯出警告）
 // export { TiptapEditor as default } from './components/tiptap-templates/simple/simple-editor'

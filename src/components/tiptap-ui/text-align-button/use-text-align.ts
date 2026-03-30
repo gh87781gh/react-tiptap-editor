@@ -1,6 +1,7 @@
 import * as React from "react"
 import type { ChainedCommands } from "@tiptap/react"
 import { type Editor } from "@tiptap/react"
+import { NodeSelection } from "@tiptap/pm/state"
 
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
@@ -71,11 +72,21 @@ export function canSetTextAlign(
   align: TextAlign
 ): boolean {
   if (!editor || !editor.isEditable) return false
-  if (
-    !isExtensionAvailable(editor, "textAlign") ||
-    isNodeTypeSelected(editor, ["image"])
-  )
-    return false
+  if (!isExtensionAvailable(editor, "textAlign")) return false
+
+  const { selection } = editor.state
+  if (selection instanceof NodeSelection) {
+    const node = selection.node
+    if (!node) return false
+    const textAlignExt = editor.extensionManager.extensions.find(
+      (ext) => ext.name === "textAlign"
+    )
+    const allowedTypes: string[] =
+      (textAlignExt?.options as { types?: string[] })?.types ?? []
+    return allowedTypes.includes(node.type.name)
+  }
+
+  if (isNodeTypeSelected(editor, ["image"])) return false
 
   return editor.can().setTextAlign(align)
 }

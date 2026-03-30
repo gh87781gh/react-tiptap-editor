@@ -8,104 +8,104 @@ export const ResizableImageComponent: React.FC<NodeViewProps> = ({
   selected
 }) => {
   const [isResizing, setIsResizing] = useState(false)
-  const [dimensions, setDimensions] = useState({
-    width: node.attrs.width || 300,
-    height: node.attrs.height || 'auto'
-  })
+  const [displayWidth, setDisplayWidth] = useState<number>(node.attrs.width || 300)
+  const [altText, setAltText] = useState<string>(node.attrs.alt || '')
+  const altInputRef = useRef<HTMLInputElement>(null)
 
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const finalWidthRef = useRef<number>(node.attrs.width || 300)
+  const isResizingRef = useRef(false)
+  const startXRef = useRef(0)
+  const startWidthRef = useRef(0)
+  const updateAttributesRef = useRef(updateAttributes)
+  updateAttributesRef.current = updateAttributes
+
   const imageId = node.attrs.imageId || `img-${Date.now()}`
 
-  // 同步 node 屬性變化
   useEffect(() => {
-    setDimensions({
-      width: node.attrs.width || 300,
-      height: node.attrs.height || 'auto'
-    })
-  }, [node.attrs.width, node.attrs.height])
-
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      setIsResizing(true)
-
-      const startX = e.clientX
-      const startWidth =
-        typeof dimensions.width === 'number' ? dimensions.width : 300
-
-      // 取得圖片的原始比例
-      const img = imgRef.current
-      let aspectRatio = 1
-      if (img && img.naturalWidth && img.naturalHeight) {
-        aspectRatio = img.naturalWidth / img.naturalHeight
-      }
-
-      const handleMouseMove = (e: MouseEvent) => {
-        const deltaX = e.clientX - startX
-        const newWidth = Math.max(50, startWidth + deltaX)
-
-        // 記錄最新寬度到 ref
-        finalWidthRef.current = newWidth
-
-        // 保持比例調整高度
-        const newHeight =
-          dimensions.height === 'auto'
-            ? 'auto'
-            : Math.max(30, newWidth / aspectRatio)
-
-        setDimensions({
-          width: newWidth,
-          height: newHeight
-        })
-
-        // 即時更新樣式，使用唯一 ID
-        if (containerRef.current) {
-          containerRef.current.style.width = `${newWidth}px`
-          if (newHeight !== 'auto') {
-            containerRef.current.style.height = `${newHeight}px`
-          }
-        }
-      }
-
-      const handleMouseUp = () => {
-        setIsResizing(false)
-
-        // 從 ref 取得最新寬度並更新 Tiptap 節點屬性
-        const finalWidth = Math.round(finalWidthRef.current)
-        updateAttributes({
-          width: finalWidth
-        })
-
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
-      }
-
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-    },
-    [dimensions, updateAttributes]
-  )
-
-  const handleImageLoad = useCallback(() => {
-    // 圖片載入完成後，如果高度是 auto，保持 auto 讓 CSS 處理
-    if (dimensions.height === 'auto' && imgRef.current) {
-      setDimensions((prev) => ({
-        ...prev,
-        height: 'auto' // 保持 auto，讓 CSS 處理
-      }))
+    if (!isResizingRef.current) {
+      setDisplayWidth(node.attrs.width || 300)
     }
-  }, [dimensions.width, dimensions.height])
+  }, [node.attrs.width])
 
-  // 使用 ID 來產生唯一的樣式
+  useEffect(() => {
+    setAltText(node.attrs.alt || '')
+  }, [node.attrs.alt])
+
+  const handleAltChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setAltText(e.target.value)
+  }, [])
+
+  const handleAltBlur = useCallback(() => {
+    updateAttributes({ alt: altText })
+  }, [altText, updateAttributes])
+
+  const handleAltKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      altInputRef.current?.blur()
+    }
+    e.stopPropagation()
+  }, [])
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isResizingRef.current) return
+      const deltaX = e.clientX - startXRef.current
+      const newWidth = Math.max(50, startWidthRef.current + deltaX)
+      setDisplayWidth(newWidth)
+      if (containerRef.current) {
+        containerRef.current.style.width = `${newWidth}px`
+      }
+    }
+
+    const onMouseUp = () => {
+      if (!isResizingRef.current) return
+      isResizingRef.current = false
+      setIsResizing(false)
+
+      setDisplayWidth((current) => {
+        const finalWidth = Math.round(current)
+        updateAttributesRef.current({ width: finalWidth })
+        return finalWidth
+      })
+    }
+
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [])
+
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    isResizingRef.current = true
+    setIsResizing(true)
+    startXRef.current = e.clientX
+    startWidthRef.current =
+      containerRef.current?.getBoundingClientRect().width ?? 300
+  }, [])
+
+  const handleImageLoad = useCallback(() => {}, [])
+
+  const textAlign = node.attrs.textAlign || 'left'
+  const justifyContent =
+    textAlign === 'center'
+      ? 'center'
+      : textAlign === 'right'
+      ? 'flex-end'
+      : textAlign === 'justify'
+      ? 'flex-start'
+      : 'flex-start'
+
   const containerStyle: React.CSSProperties = {
     position: 'relative',
     display: 'inline-block',
-    width: dimensions.width,
-    height: dimensions.height === 'auto' ? 'auto' : dimensions.height,
+    width: displayWidth,
     maxWidth: '100%',
     userSelect: isResizing ? 'none' : 'auto',
     outline: selected ? '2px solid #007bff' : 'none',
@@ -114,7 +114,7 @@ export const ResizableImageComponent: React.FC<NodeViewProps> = ({
 
   const imageStyle: React.CSSProperties = {
     width: '100%',
-    height: dimensions.height === 'auto' ? 'auto' : '100%',
+    height: 'auto',
     display: 'block',
     objectFit: 'contain'
   }
@@ -136,7 +136,10 @@ export const ResizableImageComponent: React.FC<NodeViewProps> = ({
   }
 
   return (
-    <NodeViewWrapper className='resizable-image-wrapper' data-drag-handle=''>
+    <NodeViewWrapper
+      className='resizable-image-wrapper'
+      style={{ display: 'flex', justifyContent }}
+    >
       <div
         ref={containerRef}
         id={`resizable-image-${imageId}`}
@@ -171,6 +174,7 @@ export const ResizableImageComponent: React.FC<NodeViewProps> = ({
           title={node.attrs.title || ''}
           style={imageStyle}
           onLoad={handleImageLoad}
+          data-drag-handle=''
           draggable={false}
         />
 
@@ -178,7 +182,7 @@ export const ResizableImageComponent: React.FC<NodeViewProps> = ({
         <div
           className='resize-handle'
           style={handleStyle}
-          onMouseDown={handleMouseDown}
+          onMouseDown={handleResizeStart}
           title='拖拽調整圖片大小'
         />
 
@@ -198,15 +202,21 @@ export const ResizableImageComponent: React.FC<NodeViewProps> = ({
               zIndex: 11
             }}
           >
-            {typeof dimensions.width === 'number'
-              ? Math.round(dimensions.width)
-              : dimensions.width}{' '}
-            ×{' '}
-            {dimensions.height === 'auto'
-              ? 'auto'
-              : typeof dimensions.height === 'number'
-              ? Math.round(dimensions.height)
-              : dimensions.height}
+            {Math.round(displayWidth)} × auto
+          </div>
+        )}
+
+        {selected && (
+          <div className='resizable-image-alt-input'>
+            <input
+              ref={altInputRef}
+              type='text'
+              value={altText}
+              onChange={handleAltChange}
+              onBlur={handleAltBlur}
+              onKeyDown={handleAltKeyDown}
+              placeholder='Add alt text…'
+            />
           </div>
         )}
       </div>

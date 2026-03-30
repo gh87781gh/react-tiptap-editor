@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react'
 import { v4 as uuid } from 'uuid'
 
@@ -20,16 +20,13 @@ import { TextStyle } from '@tiptap/extension-text-style'
 // --- UI Primitives ---
 import { Button } from '@/components/tiptap-ui-primitive/button'
 import { Spacer } from '@/components/tiptap-ui-primitive/spacer'
-import {
-  Toolbar,
-  ToolbarGroup,
-  ToolbarSeparator
-} from '@/components/tiptap-ui-primitive/toolbar'
+import { Toolbar, ToolbarGroup, ToolbarSeparator } from '@/components/tiptap-ui-primitive/toolbar'
 
 // --- Tiptap Node ---
 import { ImageUploadNode } from '@/components/tiptap-node/image-upload-node/image-upload-node-extension'
 import { HorizontalRule } from '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension'
 import { ResizableImage } from '@/components/tiptap-node/resizable-image-node'
+import { VideoEmbed } from '@/components/tiptap-node/video-embed-node'
 import '@/components/tiptap-node/blockquote-node/blockquote-node.scss'
 import '@/components/tiptap-node/code-block-node/code-block-node.scss'
 import '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss'
@@ -38,23 +35,21 @@ import '@/components/tiptap-node/image-node/image-node.scss'
 import '@/components/tiptap-node/resizable-image-node/resizable-image-node.scss'
 import '@/components/tiptap-node/heading-node/heading-node.scss'
 import '@/components/tiptap-node/paragraph-node/paragraph-node.scss'
+import '@/components/tiptap-node/video-embed-node/video-embed-node.scss'
 
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from '@/components/tiptap-ui/heading-dropdown-menu'
 import { ImageUploadButton } from '@/components/tiptap-ui/image-upload-button'
+import { VideoEmbedButton } from '@/components/tiptap-ui/video-embed-button'
 import { ListDropdownMenu } from '@/components/tiptap-ui/list-dropdown-menu'
 import { BlockquoteButton } from '@/components/tiptap-ui/blockquote-button'
-import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button'
+// import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button'
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverContent,
   ColorHighlightPopoverButton
 } from '@/components/tiptap-ui/color-highlight-popover'
-import {
-  LinkPopover,
-  LinkContent,
-  LinkButton
-} from '@/components/tiptap-ui/link-popover'
+import { LinkPopover, LinkContent, LinkButton } from '@/components/tiptap-ui/link-popover'
 import { MarkButton } from '@/components/tiptap-ui/mark-button'
 import { TextAlignButton } from '@/components/tiptap-ui/text-align-button'
 import { UndoRedoButton } from '@/components/tiptap-ui/undo-redo-button'
@@ -75,6 +70,9 @@ import { useCursorVisibility } from '@/hooks/use-cursor-visibility'
 // --- Styles ---
 import '@/components/tiptap-templates/simple/simple-editor.scss'
 
+import { RtbePortalProvider } from '@/contexts/rtbe-portal-context'
+import { RTBE_ROOT_CLASS } from '@/lib/rtbe-scope'
+
 const MainToolbarContent = ({
   onHighlighterClick,
   onLinkClick,
@@ -89,30 +87,27 @@ const MainToolbarContent = ({
       <Spacer />
 
       <ToolbarGroup>
-        <UndoRedoButton action='undo' />
-        <UndoRedoButton action='redo' />
+        <UndoRedoButton action="undo" />
+        <UndoRedoButton action="redo" />
       </ToolbarGroup>
 
       <ToolbarSeparator />
 
       <ToolbarGroup>
         <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={isMobile} />
-        <ListDropdownMenu
-          types={['bulletList', 'orderedList', 'taskList']}
-          portal={isMobile}
-        />
+        <ListDropdownMenu types={['bulletList', 'orderedList', 'taskList']} portal={isMobile} />
         <BlockquoteButton />
-        <CodeBlockButton />
+        {/* <CodeBlockButton /> */}
       </ToolbarGroup>
 
       <ToolbarSeparator />
 
       <ToolbarGroup>
-        <MarkButton type='bold' />
-        <MarkButton type='italic' />
-        <MarkButton type='strike' />
-        <MarkButton type='code' />
-        <MarkButton type='underline' />
+        <MarkButton type="bold" />
+        <MarkButton type="italic" />
+        <MarkButton type="strike" />
+        <MarkButton type="code" />
+        <MarkButton type="underline" />
         {!isMobile ? (
           <ColorHighlightPopover />
         ) : (
@@ -123,24 +118,25 @@ const MainToolbarContent = ({
 
       <ToolbarSeparator />
 
-      <ToolbarGroup>
+      {/* <ToolbarGroup>
         <MarkButton type='superscript' />
         <MarkButton type='subscript' />
+      </ToolbarGroup> */}
+
+      {/* <ToolbarSeparator /> */}
+
+      <ToolbarGroup>
+        <TextAlignButton align="left" />
+        <TextAlignButton align="center" />
+        <TextAlignButton align="right" />
+        <TextAlignButton align="justify" />
       </ToolbarGroup>
 
       <ToolbarSeparator />
 
       <ToolbarGroup>
-        <TextAlignButton align='left' />
-        <TextAlignButton align='center' />
-        <TextAlignButton align='right' />
-        <TextAlignButton align='justify' />
-      </ToolbarGroup>
-
-      <ToolbarSeparator />
-
-      <ToolbarGroup>
-        <ImageUploadButton text='Add' />
+        <ImageUploadButton text="Add" />
+        <VideoEmbedButton />
       </ToolbarGroup>
 
       <Spacer />
@@ -162,23 +158,19 @@ const MobileToolbarContent = ({
 }) => (
   <>
     <ToolbarGroup>
-      <Button data-style='ghost' onClick={onBack}>
-        <ArrowLeftIcon className='tiptap-button-icon' />
+      <Button data-style="ghost" onClick={onBack}>
+        <ArrowLeftIcon className="tiptap-button-icon" />
         {type === 'highlighter' ? (
-          <HighlighterIcon className='tiptap-button-icon' />
+          <HighlighterIcon className="tiptap-button-icon" />
         ) : (
-          <LinkIcon className='tiptap-button-icon' />
+          <LinkIcon className="tiptap-button-icon" />
         )}
       </Button>
     </ToolbarGroup>
 
     <ToolbarSeparator />
 
-    {type === 'highlighter' ? (
-      <ColorHighlightPopoverContent />
-    ) : (
-      <LinkContent />
-    )}
+    {type === 'highlighter' ? <ColorHighlightPopoverContent /> : <LinkContent />}
   </>
 )
 
@@ -196,10 +188,12 @@ export type TiptapEditorProps = {
 export function TiptapEditor(props: TiptapEditorProps) {
   const isMobile = useIsMobile()
   const { height } = useWindowSize()
-  const [mobileView, setMobileView] = React.useState<
-    'main' | 'highlighter' | 'link'
-  >('main')
+  const [mobileView, setMobileView] = React.useState<'main' | 'highlighter' | 'link'>('main')
   const toolbarRef = React.useRef<HTMLDivElement>(null)
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+  const setPortalHostRef = useCallback((el: HTMLDivElement | null) => {
+    setPortalContainer(el)
+  }, [])
 
   const editor = useEditor({
     content: props.value,
@@ -220,6 +214,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
       }
     },
     extensions: [
+      VideoEmbed,
       ResizableImage,
       ImageUploadNode.configure({
         type: 'resizableImage', // 使用 ResizableImage 節點類型
@@ -227,9 +222,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
         maxSize: 1 * 1024 * 1024 * 1024,
         // limit: props.maxImageCount || 3,
         upload: (file, onProgress, abortSignal) =>
-          Promise.resolve(
-            props.onUploadImage?.(file, onProgress, abortSignal) || ''
-          )
+          Promise.resolve(props.onUploadImage?.(file, onProgress, abortSignal) || '')
         // upload: (file) => props.onUploadImage(file)
         // // onError:
         // //   props.onImageUploadError ||
@@ -242,13 +235,16 @@ export function TiptapEditor(props: TiptapEditorProps) {
       TextStyle,
       StarterKit.configure({
         horizontalRule: false,
+        trailingNode: false,
         link: {
           openOnClick: false,
           enableClickSelection: true
         }
       }),
       HorizontalRule,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph', 'resizableImage', 'videoEmbed'],
+      }),
       TaskList,
       TaskItem.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
@@ -258,7 +254,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
       Selection,
       UniqueID.configure({
         attributeName: 'id',
-        generateID: () => `tiptap-editor-${props.id || uuid()}` // 如果沒有傳入的 id，則生成一個唯一的 id
+        generateID: () => `${props.id || 'tiptap'}-${uuid()}`
       })
     ]
   })
@@ -283,34 +279,44 @@ export function TiptapEditor(props: TiptapEditorProps) {
   }, [editor])
 
   return (
-    <div className='simple-editor-wrapper'>
-      <EditorContext.Provider value={{ editor }}>
-        <Toolbar
-          ref={toolbarRef}
-          style={{
-            ...(isMobile
-              ? {
-                  bottom: `calc(100% - ${height - rect.y}px)`
-                }
-              : {})
-          }}
-        >
-          {mobileView === 'main' ? (
-            <MainToolbarContent
-              onHighlighterClick={() => setMobileView('highlighter')}
-              onLinkClick={() => setMobileView('link')}
-              isMobile={isMobile}
-            />
-          ) : (
-            <MobileToolbarContent
-              type={mobileView === 'highlighter' ? 'highlighter' : 'link'}
-              onBack={() => setMobileView('main')}
-            />
-          )}
-        </Toolbar>
+    <div
+      className={`${RTBE_ROOT_CLASS} simple-editor-wrapper`}
+      data-react-tiptap-base-editor=""
+    >
+      <RtbePortalProvider container={portalContainer}>
+        <EditorContext.Provider value={{ editor }}>
+          <Toolbar
+            ref={toolbarRef}
+            style={{
+              ...(isMobile
+                ? {
+                    bottom: `calc(100% - ${height - rect.y}px)`
+                  }
+                : {})
+            }}
+          >
+            {mobileView === 'main' ? (
+              <MainToolbarContent
+                onHighlighterClick={() => setMobileView('highlighter')}
+                onLinkClick={() => setMobileView('link')}
+                isMobile={isMobile}
+              />
+            ) : (
+              <MobileToolbarContent
+                type={mobileView === 'highlighter' ? 'highlighter' : 'link'}
+                onBack={() => setMobileView('main')}
+              />
+            )}
+          </Toolbar>
 
-        <EditorContent editor={editor} className='simple-editor-content' />
-      </EditorContext.Provider>
+          <EditorContent editor={editor} className="simple-editor-content" />
+        </EditorContext.Provider>
+        <div
+          ref={setPortalHostRef}
+          className="react-tiptap-base-editor__portal-host"
+          aria-hidden
+        />
+      </RtbePortalProvider>
     </div>
   )
 }

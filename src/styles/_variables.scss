@@ -1,4 +1,4 @@
-:root {
+.react-tiptap-base-editor {
   /****************** 
   Basics
   ******************/
@@ -161,16 +161,16 @@
   --tt-foreground-contrast: 8%;
 
   &,
-  *,
-  ::before,
-  ::after {
+  & *,
+  & *::before,
+  & *::after {
     box-sizing: border-box;
     transition: none var(--tt-transition-duration-default)
       var(--tt-transition-easing-default);
   }
 }
 
-:root {
+.react-tiptap-base-editor {
   /************************************************** 
       Global colors 
   **************************************************/
@@ -188,7 +188,8 @@
 }
 
 /* Global colors - Dark mode */
-.dark {
+.dark .react-tiptap-base-editor,
+.react-tiptap-base-editor.dark {
   --tt-bg-color: var(--black);
   --tt-border-color: var(--tt-gray-dark-a-200);
   --tt-border-color-tint: var(--tt-gray-dark-a-100);
@@ -205,7 +206,7 @@
 }
 
 /* Text colors */
-:root {
+.react-tiptap-base-editor {
   --tt-color-text-gray: hsl(45, 2%, 46%);
   --tt-color-text-brown: hsl(19, 31%, 47%);
   --tt-color-text-orange: hsl(30, 89%, 45%);
@@ -227,7 +228,8 @@
   --tt-color-text-red-contrast: hsla(8, 79%, 79%, 0.4);
 }
 
-.dark {
+.dark .react-tiptap-base-editor,
+.react-tiptap-base-editor.dark {
   --tt-color-text-gray: hsl(0, 0%, 61%);
   --tt-color-text-brown: hsl(18, 35%, 58%);
   --tt-color-text-orange: hsl(25, 53%, 53%);
@@ -250,7 +252,7 @@
 }
 
 /* Highlight colors */
-:root {
+.react-tiptap-base-editor {
   --tt-color-highlight-yellow: #fef9c3;
   --tt-color-highlight-green: #dcfce7;
   --tt-color-highlight-blue: #e0f2fe;
@@ -272,7 +274,8 @@
   --tt-color-highlight-pink-contrast: rgba(225, 136, 179, 0.27);
 }
 
-.dark {
+.dark .react-tiptap-base-editor,
+.react-tiptap-base-editor.dark {
   --tt-color-highlight-yellow: #6b6524;
   --tt-color-highlight-green: #509568;
   --tt-color-highlight-blue: #6e92aa;

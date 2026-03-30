@@ -1,12 +1,12 @@
 /* rtbe-scoped */
 .react-tiptap-base-editor {
-  .tiptap-button-highlight {
+  .tiptap-button-text-color {
     position: relative;
     width: 1.25rem;
     height: 1.25rem;
     margin: 0 -0.175rem;
     border-radius: var(--tt-radius-xl);
-    background-color: var(--highlight-color);
+    background-color: var(--text-color);
     transition: transform 0.2s ease;
 
     &::after {
@@ -18,7 +18,7 @@
       top: 0;
       border-radius: inherit;
       box-sizing: border-box;
-      border: 1px solid var(--highlight-color);
+      border: 1px solid var(--text-color);
       filter: brightness(95%);
       mix-blend-mode: multiply;
 
@@ -31,7 +31,7 @@
 
   .tiptap-button {
     &[data-active-state="on"] {
-      .tiptap-button-highlight {
+      .tiptap-button-text-color {
         &::after {
           filter: brightness(80%);
         }
@@ -40,9 +40,8 @@
 
     .dark & {
       &[data-active-state="on"] {
-        .tiptap-button-highlight {
+        .tiptap-button-text-color {
           &::after {
-            // Andere Eigenschaft für .dark Kontext
             filter: brightness(180%);
           }
         }

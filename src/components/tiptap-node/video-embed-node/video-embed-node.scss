@@ -1,0 +1,61 @@
+/* rtbe-scoped */
+.react-tiptap-base-editor {
+  .tiptap.ProseMirror {
+    .video-embed-wrapper {
+      margin: 1rem 0;
+      display: flex;
+      width: 100%;
+
+      .video-embed-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        aspect-ratio: 16 / 9;
+        border-radius: var(--tt-radius-md, 0.5rem);
+        overflow: hidden;
+        background: var(--tt-gray-light-100, #f4f4f5);
+        transition: outline 0.2s ease;
+
+        &.selected {
+          outline: 2px solid var(--tt-brand-color-500, #007bff);
+          outline-offset: 2px;
+        }
+
+        iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
+      }
+    }
+
+    .ProseMirror-selectednode {
+      .video-embed-container {
+        outline: 2px solid var(--tt-brand-color-500, #007bff);
+        outline-offset: 2px;
+      }
+    }
+
+    .dark & {
+      .video-embed-wrapper {
+        .video-embed-container {
+          background: var(--tt-gray-dark-200, #2d2d2f);
+
+          &.selected {
+            outline-color: var(--tt-brand-color-400, #4dabf7);
+          }
+        }
+      }
+
+      .ProseMirror-selectednode {
+        .video-embed-container {
+          outline-color: var(--tt-brand-color-400, #4dabf7);
+        }
+      }
+    }
+  }
+}

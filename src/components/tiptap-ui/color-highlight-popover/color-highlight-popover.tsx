@@ -36,16 +36,17 @@ import {
   useColorHighlight,
 } from "@/components/tiptap-ui/color-highlight-button"
 
+import type { TextColor } from "@/components/tiptap-ui/text-color-button"
+import {
+  TextColorButton,
+  pickTextColorsByValue,
+  useTextColor,
+} from "@/components/tiptap-ui/text-color-button"
+
 export interface ColorHighlightPopoverContentProps {
-  /**
-   * The Tiptap editor instance.
-   */
   editor?: Editor | null
-  /**
-   * Optional colors to use in the highlight popover.
-   * If not provided, defaults to a predefined set of colors.
-   */
   colors?: HighlightColor[]
+  textColors?: TextColor[]
 }
 
 export interface ColorHighlightPopoverProps
@@ -54,11 +55,8 @@ export interface ColorHighlightPopoverProps
       UseColorHighlightConfig,
       "editor" | "hideWhenUnavailable" | "onApplied"
     > {
-  /**
-   * Optional colors to use in the highlight popover.
-   * If not provided, defaults to a predefined set of colors.
-   */
   colors?: HighlightColor[]
+  textColors?: TextColor[]
 }
 
 export const ColorHighlightPopoverButton = React.forwardRef<
@@ -83,23 +81,44 @@ export const ColorHighlightPopoverButton = React.forwardRef<
 
 ColorHighlightPopoverButton.displayName = "ColorHighlightPopoverButton"
 
+const DEFAULT_TEXT_COLORS = pickTextColorsByValue([
+  "var(--tt-color-text-gray)",
+  "var(--tt-color-text-brown)",
+  "var(--tt-color-text-orange)",
+  "var(--tt-color-text-yellow)",
+  "var(--tt-color-text-green)",
+  "var(--tt-color-text-blue)",
+  "var(--tt-color-text-purple)",
+  "var(--tt-color-text-pink)",
+  "var(--tt-color-text-red)",
+])
+
+const DEFAULT_HIGHLIGHT_COLORS = pickHighlightColorsByValue([
+  "var(--tt-color-highlight-green)",
+  "var(--tt-color-highlight-blue)",
+  "var(--tt-color-highlight-red)",
+  "var(--tt-color-highlight-purple)",
+  "var(--tt-color-highlight-yellow)",
+])
+
 export function ColorHighlightPopoverContent({
   editor,
-  colors = pickHighlightColorsByValue([
-    "var(--tt-color-highlight-green)",
-    "var(--tt-color-highlight-blue)",
-    "var(--tt-color-highlight-red)",
-    "var(--tt-color-highlight-purple)",
-    "var(--tt-color-highlight-yellow)",
-  ]),
+  colors = DEFAULT_HIGHLIGHT_COLORS,
+  textColors = DEFAULT_TEXT_COLORS,
 }: ColorHighlightPopoverContentProps) {
   const { handleRemoveHighlight } = useColorHighlight({ editor })
+  const { handleRemoveColor } = useTextColor({ editor })
   const isMobile = useIsMobile()
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const menuItems = React.useMemo(
-    () => [...colors, { label: "Remove highlight", value: "none" }],
-    [colors]
+    () => [
+      ...textColors.map((c) => ({ ...c, group: "text" })),
+      { label: "Remove color", value: "none-text", group: "text" },
+      ...colors.map((c) => ({ ...c, group: "highlight" })),
+      { label: "Remove highlight", value: "none-highlight", group: "highlight" },
+    ],
+    [textColors, colors]
   )
 
   const { selectedIndex } = useMenuNavigation({
@@ -112,10 +131,16 @@ export function ColorHighlightPopoverContent({
         '[data-highlighted="true"]'
       ) as HTMLElement
       if (highlightedElement) highlightedElement.click()
-      if (item.value === "none") handleRemoveHighlight()
+      if (item.value === "none-text") handleRemoveColor()
+      if (item.value === "none-highlight") handleRemoveHighlight()
     },
     autoSelectFirstItem: false,
   })
+
+  const textColorOffset = 0
+  const textRemoveIndex = textColors.length
+  const highlightOffset = textColors.length + 1
+  const highlightRemoveIndex = highlightOffset + colors.length
 
   return (
     <Card
@@ -126,6 +151,39 @@ export function ColorHighlightPopoverContent({
       <CardBody style={isMobile ? { padding: 0 } : {}}>
         <CardItemGroup orientation="horizontal">
           <ButtonGroup orientation="horizontal">
+            {textColors.map((tc, index) => (
+              <TextColorButton
+                key={tc.value}
+                editor={editor}
+                color={tc.value}
+                tooltip={tc.label}
+                aria-label={`${tc.label} text color`}
+                tabIndex={textColorOffset + index === selectedIndex ? 0 : -1}
+                data-highlighted={selectedIndex === textColorOffset + index}
+              />
+            ))}
+          </ButtonGroup>
+          <Separator />
+          <ButtonGroup orientation="horizontal">
+            <Button
+              onClick={handleRemoveColor}
+              aria-label="Remove text color"
+              tooltip="Remove text color"
+              tabIndex={selectedIndex === textRemoveIndex ? 0 : -1}
+              type="button"
+              role="menuitem"
+              data-style="ghost"
+              data-highlighted={selectedIndex === textRemoveIndex}
+            >
+              <BanIcon className="tiptap-button-icon" />
+            </Button>
+          </ButtonGroup>
+        </CardItemGroup>
+
+        <Separator />
+
+        <CardItemGroup orientation="horizontal">
+          <ButtonGroup orientation="horizontal">
             {colors.map((color, index) => (
               <ColorHighlightButton
                 key={color.value}
@@ -133,8 +191,8 @@ export function ColorHighlightPopoverContent({
                 highlightColor={color.value}
                 tooltip={color.label}
                 aria-label={`${color.label} highlight color`}
-                tabIndex={index === selectedIndex ? 0 : -1}
-                data-highlighted={selectedIndex === index}
+                tabIndex={highlightOffset + index === selectedIndex ? 0 : -1}
+                data-highlighted={selectedIndex === highlightOffset + index}
               />
             ))}
           </ButtonGroup>
@@ -144,11 +202,11 @@ export function ColorHighlightPopoverContent({
               onClick={handleRemoveHighlight}
               aria-label="Remove highlight"
               tooltip="Remove highlight"
-              tabIndex={selectedIndex === colors.length ? 0 : -1}
+              tabIndex={selectedIndex === highlightRemoveIndex ? 0 : -1}
               type="button"
               role="menuitem"
               data-style="ghost"
-              data-highlighted={selectedIndex === colors.length}
+              data-highlighted={selectedIndex === highlightRemoveIndex}
             >
               <BanIcon className="tiptap-button-icon" />
             </Button>
@@ -161,13 +219,8 @@ export function ColorHighlightPopoverContent({
 
 export function ColorHighlightPopover({
   editor: providedEditor,
-  colors = pickHighlightColorsByValue([
-    "var(--tt-color-highlight-green)",
-    "var(--tt-color-highlight-blue)",
-    "var(--tt-color-highlight-red)",
-    "var(--tt-color-highlight-purple)",
-    "var(--tt-color-highlight-yellow)",
-  ]),
+  colors = DEFAULT_HIGHLIGHT_COLORS,
+  textColors = DEFAULT_TEXT_COLORS,
   hideWhenUnavailable = false,
   onApplied,
   ...props
@@ -198,8 +251,12 @@ export function ColorHighlightPopover({
           <Icon className="tiptap-button-icon" />
         </ColorHighlightPopoverButton>
       </PopoverTrigger>
-      <PopoverContent aria-label="Highlight colors">
-        <ColorHighlightPopoverContent editor={editor} colors={colors} />
+      <PopoverContent aria-label="Text colors and highlights">
+        <ColorHighlightPopoverContent
+          editor={editor}
+          colors={colors}
+          textColors={textColors}
+        />
       </PopoverContent>
     </Popover>
   )

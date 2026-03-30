@@ -19,6 +19,7 @@ import {
   type ReferenceType,
   FloatingDelayGroup,
 } from "@floating-ui/react"
+import { useRtbePortalContainer } from "@/contexts/rtbe-portal-context"
 import "@/components/tiptap-ui-primitive/tooltip/tooltip.scss"
 
 interface TooltipProviderProps {
@@ -202,6 +203,7 @@ export const TooltipContent = React.forwardRef<
 ) {
   const context = useTooltipContext()
   const ref = useMergeRefs([context.refs.setFloating, propRef])
+  const rtbeRoot = useRtbePortalContainer()
 
   if (!context.open) return null
 
@@ -220,7 +222,15 @@ export const TooltipContent = React.forwardRef<
   )
 
   if (portal) {
-    return <FloatingPortal {...portalProps}>{content}</FloatingPortal>
+    const { root: portalRoot, ...restPortal } = portalProps
+    return (
+      <FloatingPortal
+        {...restPortal}
+        root={portalRoot ?? rtbeRoot ?? undefined}
+      >
+        {content}
+      </FloatingPortal>
+    )
   }
 
   return content

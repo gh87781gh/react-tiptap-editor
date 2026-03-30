@@ -1,16 +1,19 @@
-.tiptap-badge-group {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
-.tiptap-badge-group {
-  [data-orientation="vertical"] {
-    flex-direction: column;
+/* rtbe-scoped */
+.react-tiptap-base-editor {
+  .tiptap-badge-group {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
   }
 
-  [data-orientation="horizontal"] {
-    flex-direction: row;
+  .tiptap-badge-group {
+    [data-orientation="vertical"] {
+      flex-direction: column;
+    }
+
+    [data-orientation="horizontal"] {
+      flex-direction: row;
+    }
   }
 }

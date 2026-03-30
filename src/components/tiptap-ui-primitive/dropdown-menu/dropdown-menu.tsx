@@ -1,6 +1,7 @@
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { cn } from "@/lib/tiptap-utils"
+import { useRtbePortalContainer } from "@/contexts/rtbe-portal-context"
 import "@/components/tiptap-ui-primitive/dropdown-menu/dropdown-menu.scss"
 
 function DropdownMenu({
@@ -10,9 +11,16 @@ function DropdownMenu({
 }
 
 function DropdownMenuPortal({
+  container,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) {
-  return <DropdownMenuPrimitive.Portal {...props} />
+  const rtbeContainer = useRtbePortalContainer()
+  return (
+    <DropdownMenuPrimitive.Portal
+      container={container ?? rtbeContainer ?? undefined}
+      {...props}
+    />
+  )
 }
 
 const DropdownMenuTrigger = React.forwardRef<
