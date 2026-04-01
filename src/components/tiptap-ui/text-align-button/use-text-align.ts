@@ -9,7 +9,6 @@ import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 // --- Lib ---
 import {
   isExtensionAvailable,
-  isNodeTypeSelected,
 } from "@/lib/tiptap-utils"
 
 // --- Icons ---
@@ -69,26 +68,36 @@ export const textAlignLabels: Record<TextAlign, string> = {
  */
 export function canSetTextAlign(
   editor: Editor | null,
-  align: TextAlign
+  _align?: TextAlign
 ): boolean {
   if (!editor || !editor.isEditable) return false
   if (!isExtensionAvailable(editor, "textAlign")) return false
 
-  const { selection } = editor.state
+  const textAlignExt = editor.extensionManager.extensions.find(
+    (ext) => ext.name === "textAlign"
+  )
+  const allowedTypes: string[] =
+    (textAlignExt?.options as { types?: string[] })?.types ?? []
+
+  const { selection, doc } = editor.state
+
+  // NodeSelection：直接選取整個節點（例如點選圖片、影片）
   if (selection instanceof NodeSelection) {
     const node = selection.node
     if (!node) return false
-    const textAlignExt = editor.extensionManager.extensions.find(
-      (ext) => ext.name === "textAlign"
-    )
-    const allowedTypes: string[] =
-      (textAlignExt?.options as { types?: string[] })?.types ?? []
     return allowedTypes.includes(node.type.name)
   }
 
-  if (isNodeTypeSelected(editor, ["image"])) return false
+  // TextSelection / AllSelection：查游標所在的最近 block node
+  const resolvedPos = doc.resolve(selection.$anchor.pos)
+  for (let depth = resolvedPos.depth; depth >= 0; depth--) {
+    const node = resolvedPos.node(depth)
+    if (node && allowedTypes.includes(node.type.name)) {
+      return true
+    }
+  }
 
-  return editor.can().setTextAlign(align)
+  return false
 }
 
 export function hasSetTextAlign(
@@ -138,7 +147,7 @@ export function shouldShowButton(props: {
   if (!editor || !editor.isEditable) return false
   if (!isExtensionAvailable(editor, "textAlign")) return false
 
-  if (hideWhenUnavailable && !editor.isActive("code")) {
+  if (hideWhenUnavailable) {
     return canSetTextAlign(editor, align)
   }
 

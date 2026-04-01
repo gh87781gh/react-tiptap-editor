@@ -215,7 +215,11 @@ export function TiptapEditor(props: TiptapEditorProps) {
     },
     extensions: [
       VideoEmbed,
-      ResizableImage,
+      ResizableImage.configure({
+        onPasteImage: props.onUploadImage
+          ? (file, onProgress, abortSignal) => props.onUploadImage!(file, onProgress, abortSignal)
+          : () => Promise.resolve('')
+      }),
       ImageUploadNode.configure({
         type: 'resizableImage', // 使用 ResizableImage 節點類型
         accept: 'image/*',
@@ -243,7 +247,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
       }),
       HorizontalRule,
       TextAlign.configure({
-        types: ['heading', 'paragraph', 'resizableImage', 'videoEmbed'],
+        types: ['heading', 'paragraph', 'resizableImage', 'videoEmbed']
       }),
       TaskList,
       TaskItem.configure({ nested: true }),
@@ -279,10 +283,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
   }, [editor])
 
   return (
-    <div
-      className={`${RTBE_ROOT_CLASS} simple-editor-wrapper`}
-      data-react-tiptap-base-editor=""
-    >
+    <div className={`${RTBE_ROOT_CLASS} simple-editor-wrapper`} data-react-tiptap-base-editor="">
       <RtbePortalProvider container={portalContainer}>
         <EditorContext.Provider value={{ editor }}>
           <Toolbar
@@ -311,11 +312,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
 
           <EditorContent editor={editor} className="simple-editor-content" />
         </EditorContext.Provider>
-        <div
-          ref={setPortalHostRef}
-          className="react-tiptap-base-editor__portal-host"
-          aria-hidden
-        />
+        <div ref={setPortalHostRef} className="react-tiptap-base-editor__portal-host" aria-hidden />
       </RtbePortalProvider>
     </div>
   )

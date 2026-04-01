@@ -1,5 +1,5 @@
 // TiptapEditor 組件庫樣式匯入點
-// 使用方式：import 'tiptap-editor/styles'
+// 使用方式：import 'react-tiptap-base-editor/dist/styles/index.css'
 
 // 全域變數與動畫
 @use './variables';
@@ -17,13 +17,21 @@
 @use '../components/tiptap-node/image-upload-node/image-upload-node.scss';
 @use '../components/tiptap-node/list-node/list-node.scss';
 @use '../components/tiptap-node/paragraph-node/paragraph-node.scss';
+@use '../components/tiptap-node/resizable-image-node/resizable-image-node.scss';
+@use '../components/tiptap-node/video-embed-node/video-embed-node.scss';
 
 // UI 元件樣式
 @use '../components/tiptap-ui/color-highlight-button/color-highlight-button.scss';
+@use '../components/tiptap-ui/color-text-button/color-text-button.scss';
+@use '../components/tiptap-ui/text-color-button/text-color-button.scss';
 
 // UI 基礎元件樣式
 @use '../components/tiptap-ui-primitive/badge/badge.scss';
+@use '../components/tiptap-ui-primitive/badge/badge-colors.scss';
+@use '../components/tiptap-ui-primitive/badge/badge-group.scss';
 @use '../components/tiptap-ui-primitive/button/button.scss';
+@use '../components/tiptap-ui-primitive/button/button-colors.scss';
+@use '../components/tiptap-ui-primitive/button/button-group.scss';
 @use '../components/tiptap-ui-primitive/card/card.scss';
 @use '../components/tiptap-ui-primitive/dropdown-menu/dropdown-menu.scss';
 @use '../components/tiptap-ui-primitive/input/input.scss';

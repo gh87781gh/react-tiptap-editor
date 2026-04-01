@@ -1,18 +1,27 @@
 {
   "name": "react-tiptap-base-editor",
   "private": false,
-  "version": "1.3.6",
+  "version": "1.4.0",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles": "./dist/styles/index.css",
+    "./dist/styles/index.css": "./dist/styles/index.css"
+  },
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.lib.json && vite build --mode lib",
+    "build": "rm -rf dist/assets dist/index.html && tsc -p tsconfig.lib.json && vite build --mode lib",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepublishOnly": "npm run build"

@@ -205,8 +205,11 @@
     0px 2px 3px 0px rgba(0, 0, 0, 0.12);
 }
 
-/* Text colors */
-.react-tiptap-base-editor {
+/* Text colors & Highlight colors
+ * 這些變數用於 inline style（color: var(--tt-color-text-xxx)），
+ * 渲染時可能在 .react-tiptap-base-editor 之外，因此同時掛在 :root 上。
+ */
+:root {
   --tt-color-text-gray: hsl(45, 2%, 46%);
   --tt-color-text-brown: hsl(19, 31%, 47%);
   --tt-color-text-orange: hsl(30, 89%, 45%);
@@ -226,33 +229,7 @@
   --tt-color-text-purple-contrast: hsla(274, 37%, 64%, 0.27);
   --tt-color-text-pink-contrast: hsla(331, 60%, 71%, 0.27);
   --tt-color-text-red-contrast: hsla(8, 79%, 79%, 0.4);
-}
 
-.dark .react-tiptap-base-editor,
-.react-tiptap-base-editor.dark {
-  --tt-color-text-gray: hsl(0, 0%, 61%);
-  --tt-color-text-brown: hsl(18, 35%, 58%);
-  --tt-color-text-orange: hsl(25, 53%, 53%);
-  --tt-color-text-yellow: hsl(36, 54%, 55%);
-  --tt-color-text-green: hsl(145, 32%, 47%);
-  --tt-color-text-blue: hsl(202, 64%, 52%);
-  --tt-color-text-purple: hsl(270, 55%, 62%);
-  --tt-color-text-pink: hsl(329, 57%, 58%);
-  --tt-color-text-red: hsl(1, 69%, 60%);
-
-  --tt-color-text-gray-contrast: hsla(0, 0%, 100%, 0.09);
-  --tt-color-text-brown-contrast: hsla(17, 45%, 50%, 0.25);
-  --tt-color-text-orange-contrast: hsla(27, 82%, 53%, 0.2);
-  --tt-color-text-yellow-contrast: hsla(35, 49%, 47%, 0.2);
-  --tt-color-text-green-contrast: hsla(151, 55%, 39%, 0.2);
-  --tt-color-text-blue-contrast: hsla(202, 54%, 43%, 0.2);
-  --tt-color-text-purple-contrast: hsla(271, 56%, 60%, 0.18);
-  --tt-color-text-pink-contrast: hsla(331, 67%, 58%, 0.22);
-  --tt-color-text-red-contrast: hsla(0, 67%, 60%, 0.25);
-}
-
-/* Highlight colors */
-.react-tiptap-base-editor {
   --tt-color-highlight-yellow: #fef9c3;
   --tt-color-highlight-green: #dcfce7;
   --tt-color-highlight-blue: #e0f2fe;
@@ -274,8 +251,27 @@
   --tt-color-highlight-pink-contrast: rgba(225, 136, 179, 0.27);
 }
 
-.dark .react-tiptap-base-editor,
-.react-tiptap-base-editor.dark {
+.dark {
+  --tt-color-text-gray: hsl(0, 0%, 61%);
+  --tt-color-text-brown: hsl(18, 35%, 58%);
+  --tt-color-text-orange: hsl(25, 53%, 53%);
+  --tt-color-text-yellow: hsl(36, 54%, 55%);
+  --tt-color-text-green: hsl(145, 32%, 47%);
+  --tt-color-text-blue: hsl(202, 64%, 52%);
+  --tt-color-text-purple: hsl(270, 55%, 62%);
+  --tt-color-text-pink: hsl(329, 57%, 58%);
+  --tt-color-text-red: hsl(1, 69%, 60%);
+
+  --tt-color-text-gray-contrast: hsla(0, 0%, 100%, 0.09);
+  --tt-color-text-brown-contrast: hsla(17, 45%, 50%, 0.25);
+  --tt-color-text-orange-contrast: hsla(27, 82%, 53%, 0.2);
+  --tt-color-text-yellow-contrast: hsla(35, 49%, 47%, 0.2);
+  --tt-color-text-green-contrast: hsla(151, 55%, 39%, 0.2);
+  --tt-color-text-blue-contrast: hsla(202, 54%, 43%, 0.2);
+  --tt-color-text-purple-contrast: hsla(271, 56%, 60%, 0.18);
+  --tt-color-text-pink-contrast: hsla(331, 67%, 58%, 0.22);
+  --tt-color-text-red-contrast: hsla(0, 67%, 60%, 0.25);
+
   --tt-color-highlight-yellow: #6b6524;
   --tt-color-highlight-green: #509568;
   --tt-color-highlight-blue: #6e92aa;
