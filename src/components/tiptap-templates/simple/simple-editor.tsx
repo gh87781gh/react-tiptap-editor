@@ -201,7 +201,12 @@ export function TiptapEditor(props: TiptapEditorProps) {
     shouldRerenderOnTransaction: false,
     onUpdate: ({ editor }) => {
       if (editor) {
-        props.onChange(editor.getHTML())
+        // ProseMirror inserts <br class="ProseMirror-trailingBreak"> as a DOM-only
+        // cursor placeholder inside empty paragraphs, but getHTML() omits it, producing
+        // bare <p></p> tags that collapse visually when rendered outside the editor.
+        // Replacing them with <p><br></p> preserves the empty line's height.
+        const html = editor.getHTML().replace(/<p><\/p>/g, '<p><br></p>')
+        props.onChange(html)
       }
     },
     editorProps: {
