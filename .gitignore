@@ -77,3 +77,5 @@ temp/
 .parcel-cache
 
 dist/
+
+.cursor
