@@ -282,7 +282,7 @@ export function TiptapEditor(props: TiptapEditorProps) {
   useEffect(() => {
     return () => {
       if (editor) {
-        editor.commands.clearContent()
+        editor.destroy()
       }
     }
   }, [editor])
